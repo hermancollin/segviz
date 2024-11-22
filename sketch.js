@@ -1,3 +1,5 @@
+let img, seg, axons = [];
+
 function setup() {
   img = loadImage('data/img.png', imgLoaded);
   seg = loadImage('data/seg.png', segLoaded);
@@ -15,8 +17,8 @@ function imgLoaded() {
 
 function segLoaded() {
   console.log('Segmentation loaded:', seg.width, seg.height);
-  let components = extractConnectedComponents(seg);
-  console.log('Connected components:', components.length);
+  axons = extractConnectedComponents(seg);
+  console.log('Connected components:', axons.length);
 }
 
 function draw() {
@@ -33,6 +35,13 @@ function draw() {
   // tint(255, 150 - alpha)
   // image(seg, 0, 0, seg.width, seg.height)
   // pop()
+
+  for (let i = 0; i < axons.length; i++) {
+    let axon = axons[i];
+    if (isMouseOverComponent(axon)) {
+      drawComponent(axon);
+    }
+  }
 }
 
 function extractConnectedComponents(seg) {
@@ -77,4 +86,26 @@ function extractConnectedComponents(seg) {
   }
 
   return components;
+}
+
+function isMouseOverComponent(component) {
+  for (let i = 0; i < component.length; i++) {
+    let [x, y] = component[i];
+    let scaledX = x * (600 / img.width);
+    let scaledY = y * (600 / img.height);
+    if (dist(mouseX, mouseY, scaledX, scaledY) < 50) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function drawComponent(component) {
+  fill(255, 0, 0, 150);
+  beginShape();
+  for (let i = 0; i < component.length; i++) {
+    let [x, y] = component[i];
+    vertex(x, y);
+  }
+  endShape(CLOSE);
 }
